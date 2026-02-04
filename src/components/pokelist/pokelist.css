@@ -1,0 +1,25 @@
+.pl-search input{ width:100%; max-width:380px; box-sizing:border-box; }
+.pl-types{ display:flex; gap:0.4rem; flex-wrap:wrap; margin-top:0.4rem; }
+.pl-typeLabel{ display:flex; align-items:center; gap:0.4rem; font-size:0.85rem; }
+.pl-type-pill{ padding:0.18rem 0.5rem; border-radius:999px; text-transform:capitalize; background:rgba(255,255,255,0.03); }
+.pl-range{ display:flex; flex-direction:column; gap:0.25rem; }
+.pl-range input[type=range]{ width:160px; }
+.pl-range-values{ font-size:0.75rem; opacity:0.7; }
+
+/* reuse small type colors for filter pills */
+.pl-type-pill.type-fire{ background: linear-gradient(180deg,#ff9a76,#ff6a3d); color:#2b0700; }
+.pl-type-pill.type-water{ background: linear-gradient(180deg,#8fd3ff,#3aa0ff); color:#02283a; }
+.pl-type-pill.type-grass{ background: linear-gradient(180deg,#b6f3c1,#35d07b); color:#072912; }
+.pl-type-pill.type-electric{ background: linear-gradient(180deg,#fff3a0,#ffd04a); color:#2b2500; }
+
+.pl-filter-group label{ display:block; font-weight:600; margin-bottom:0.35rem; }
+
+.pl-controls .pl-filter-group{ min-width:200px; }
+
+.pl-modal__close{ background: rgba(255,255,255,0.02); border-radius:999px; padding:0.35rem 0.5rem; border:1px solid rgba(255,255,255,0.03); }
+
+.pl-modal__details dl{ display:grid; grid-template-columns:120px 1fr; gap:0.45rem 1rem; }
+.pl-modal__details dt{ opacity:0.7; }
+.pl-modal__details dd{ margin:0; font-weight:600; text-transform:capitalize; }
+
+.pl-grid__item { display:block; }
