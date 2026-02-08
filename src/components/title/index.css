@@ -1,3 +1,7 @@
+/* Styles du composant Title
+   - Modifier la taille et la couleur ici pour changer l'apparence des titres réutilisables.
+   - Couleur rouge uniquement d'exemple : changez `color` pour l'adapter au thème.
+*/
 .title{
     font-size: 2em;
     text-align: center;
