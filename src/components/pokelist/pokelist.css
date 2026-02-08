@@ -2,9 +2,19 @@
 .pl-types{ display:flex; gap:0.4rem; flex-wrap:wrap; margin-top:0.4rem; }
 .pl-typeLabel{ display:flex; align-items:center; gap:0.4rem; font-size:0.85rem; }
 .pl-type-pill{ padding:0.18rem 0.5rem; border-radius:999px; text-transform:capitalize; background:rgba(255,255,255,0.03); }
-.pl-range{ display:flex; flex-direction:column; gap:0.25rem; }
-.pl-range input[type=range]{ width:160px; }
-.pl-range-values{ font-size:0.75rem; opacity:0.7; }
+.pl-range{ position:relative; width:160px; height:36px; display:flex; align-items:center; gap:0.5rem; --min:0%; --max:100%; }
+
+/* visual track */
+.pl-range::before{ content:''; position:absolute; left:0; right:0; height:6px; border-radius:6px; background:linear-gradient(90deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03)); top:50%; transform:translateY(-50%); }
+.pl-range::after{ /* active range */ content:''; position:absolute; height:6px; border-radius:6px; background:linear-gradient(90deg,#ffd400,#ffea78); top:50%; transform:translateY(-50%); left:var(--min); right:calc(100% - var(--max)); box-shadow:0 6px 18px rgba(0,0,0,0.25) inset; }
+
+.pl-range input[type=range]{ -webkit-appearance:none; appearance:none; pointer-events:none; position:absolute; left:0; right:0; height:36px; background:transparent; }
+.pl-range input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; appearance:none; pointer-events:auto; width:18px; height:18px; border-radius:50%; background:linear-gradient(180deg,#ffffff,#ffea88); border:2px solid rgba(0,0,0,0.2); box-shadow:0 6px 18px rgba(2,12,30,0.45); }
+.pl-range input[type=range]::-moz-range-thumb{ width:18px; height:18px; border-radius:50%; background:linear-gradient(180deg,#ffffff,#ffea88); border:2px solid rgba(0,0,0,0.2); box-shadow:0 6px 18px rgba(2,12,30,0.45); }
+
+.pl-range-values{ font-size:0.75rem; opacity:0.85; margin-left:170px; min-width:80px; text-align:left; }
+
+@media (max-width:560px){ .pl-range{ width:220px; } .pl-range-values{ margin-left:230px; } }
 
 /* reuse small type colors for filter pills */
 .pl-type-pill.type-fire{ background: linear-gradient(180deg,#ff9a76,#ff6a3d); color:#2b0700; }

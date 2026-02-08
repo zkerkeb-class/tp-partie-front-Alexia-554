@@ -156,27 +156,95 @@ const PokeList = () => {
 
           <div className="pl-filter-group">
             <label>PV</label>
-            <div className="pl-range">
-              <input type="range" min={bounds?.hp?.[0] ?? 0} max={bounds?.hp?.[1] ?? 255} value={hpRange[0]} onChange={(e) => setHpRange([Number(e.target.value), hpRange[1]])} />
-              <input type="range" min={bounds?.hp?.[0] ?? 0} max={bounds?.hp?.[1] ?? 255} value={hpRange[1]} onChange={(e) => setHpRange([hpRange[0], Number(e.target.value)])} />
+            <div
+              className="pl-range"
+              style={{
+                '--min': `${Math.round(((hpRange[0] - (bounds?.hp?.[0] ?? 0)) / Math.max(1, ((bounds?.hp?.[1] ?? 255) - (bounds?.hp?.[0] ?? 0)))) * 100)}%`,
+                '--max': `${Math.round(((hpRange[1] - (bounds?.hp?.[0] ?? 0)) / Math.max(1, ((bounds?.hp?.[1] ?? 255) - (bounds?.hp?.[0] ?? 0)))) * 100)}%`,
+              }}
+            >
+              <input
+                type="range"
+                min={bounds?.hp?.[0] ?? 0}
+                max={bounds?.hp?.[1] ?? 255}
+                value={hpRange[0]}
+                aria-label="PV minimum"
+                onChange={(e) => {
+                  const v = Number(e.target.value);
+                  setHpRange([Math.min(v, hpRange[1]), hpRange[1]]);
+                }}
+              />
+
+              <input
+                type="range"
+                min={bounds?.hp?.[0] ?? 0}
+                max={bounds?.hp?.[1] ?? 255}
+                value={hpRange[1]}
+                aria-label="PV maximum"
+                onChange={(e) => {
+                  const v = Number(e.target.value);
+                  setHpRange([hpRange[0], Math.max(v, hpRange[0])]);
+                }}
+              />
+
               <div className="pl-range-values">{hpRange[0]} — {hpRange[1]}</div>
             </div>
           </div>
 
           <div className="pl-filter-group">
             <label>Poids (hg)</label>
-            <div className="pl-range">
-              <input type="range" min={bounds?.weight?.[0] ?? 0} max={bounds?.weight?.[1] ?? 1000} value={weightRange[0]} onChange={(e) => setWeightRange([Number(e.target.value), weightRange[1]])} />
-              <input type="range" min={bounds?.weight?.[0] ?? 0} max={bounds?.weight?.[1] ?? 1000} value={weightRange[1]} onChange={(e) => setWeightRange([weightRange[0], Number(e.target.value)])} />
+            <div
+              className="pl-range"
+              style={{
+                '--min': `${Math.round(((weightRange[0] - (bounds?.weight?.[0] ?? 0)) / Math.max(1, ((bounds?.weight?.[1] ?? 1000) - (bounds?.weight?.[0] ?? 0)))) * 100)}%`,
+                '--max': `${Math.round(((weightRange[1] - (bounds?.weight?.[0] ?? 0)) / Math.max(1, ((bounds?.weight?.[1] ?? 1000) - (bounds?.weight?.[0] ?? 0)))) * 100)}%`,
+              }}
+            >
+              <input
+                type="range"
+                min={bounds?.weight?.[0] ?? 0}
+                max={bounds?.weight?.[1] ?? 1000}
+                value={weightRange[0]}
+                aria-label="Poids minimum"
+                onChange={(e) => setWeightRange(([Math.min(Number(e.target.value), weightRange[1]), weightRange[1]]))}
+              />
+              <input
+                type="range"
+                min={bounds?.weight?.[0] ?? 0}
+                max={bounds?.weight?.[1] ?? 1000}
+                value={weightRange[1]}
+                aria-label="Poids maximum"
+                onChange={(e) => setWeightRange([weightRange[0], Math.max(Number(e.target.value), weightRange[0])])}
+              />
               <div className="pl-range-values">{(weightRange[0]/10).toFixed(1)}kg — {(weightRange[1]/10).toFixed(1)}kg</div>
             </div>
           </div>
 
           <div className="pl-filter-group">
             <label>Attaque</label>
-            <div className="pl-range">
-              <input type="range" min={bounds?.attack?.[0] ?? 0} max={bounds?.attack?.[1] ?? 200} value={attackRange[0]} onChange={(e) => setAttackRange([Number(e.target.value), attackRange[1]])} />
-              <input type="range" min={bounds?.attack?.[0] ?? 0} max={bounds?.attack?.[1] ?? 200} value={attackRange[1]} onChange={(e) => setAttackRange([attackRange[0], Number(e.target.value)])} />
+            <div
+              className="pl-range"
+              style={{
+                '--min': `${Math.round(((attackRange[0] - (bounds?.attack?.[0] ?? 0)) / Math.max(1, ((bounds?.attack?.[1] ?? 200) - (bounds?.attack?.[0] ?? 0)))) * 100)}%`,
+                '--max': `${Math.round(((attackRange[1] - (bounds?.attack?.[0] ?? 0)) / Math.max(1, ((bounds?.attack?.[1] ?? 200) - (bounds?.attack?.[0] ?? 0)))) * 100)}%`,
+              }}
+            >
+              <input
+                type="range"
+                min={bounds?.attack?.[0] ?? 0}
+                max={bounds?.attack?.[1] ?? 200}
+                value={attackRange[0]}
+                aria-label="Attaque minimum"
+                onChange={(e) => setAttackRange([Math.min(Number(e.target.value), attackRange[1]), attackRange[1]])}
+              />
+              <input
+                type="range"
+                min={bounds?.attack?.[0] ?? 0}
+                max={bounds?.attack?.[1] ?? 200}
+                value={attackRange[1]}
+                aria-label="Attaque maximum"
+                onChange={(e) => setAttackRange([attackRange[0], Math.max(Number(e.target.value), attackRange[0])])}
+              />
               <div className="pl-range-values">{attackRange[0]} — {attackRange[1]}</div>
             </div>
           </div>
