@@ -1,17 +1,30 @@
-:root{
+/*
+  Variables globales du composant PokeCard
+  - Modifier `--pc-card-w` / `--pc-card-h` pour redimensionner la carte.
+  - `--pc-border` contrôle la couleur accent (utilisée pour les puissances, etc.).
+  - `--pc-bg-dark` : fond principal de la carte.
+*/
+:root {
   --pc-card-w: 260px;
   --pc-card-h: 360px;
-  --pc-border: #ffd400; /* yellow border like real card */
-  --pc-bg-dark: linear-gradient(180deg,#071428 0%, #0c2a45 100%);
+  --pc-border: #ffd400;
+  /* yellow border like real card */
+  --pc-bg-dark: #24269f;/*linear-gradient(180deg, #071428 0%, #0c2a45 100%); Couleur de fond de carte*/
 }
 
-.pc-card{
-  width: var(--pc-card-w);
+.pc-card {
+  /* carte flexible : s'adapte à la largeur de la colonne parent
+     - width: 100% permet à la carte de rétrécir quand la colonne est plus petite
+     - max-width préserve la largeur de référence définie par --pc-card-w
+     - L'espacement entre cartes est désormais contrôlé par la grille (gap: 10px).
+  */
+  width: 100%;
+  max-width: var(--pc-card-w);
   height: var(--pc-card-h);
   border-radius: 14px;
   padding: 14px;
   color: #f7fbff;
-  box-shadow: 0 18px 40px rgba(2,12,30,0.6);
+  box-shadow: 0 18px 40px rgba(2, 12, 30, 0.6);
   transition: transform .22s ease, box-shadow .22s ease;
   cursor: pointer;
   overflow: hidden;
@@ -20,72 +33,515 @@
   background: var(--pc-bg-dark);
   border: 6px solid var(--pc-border);
   position: relative;
+  /* espacement géré par la grille par défaut — ne pas ajouter de margin ici */
+  margin: 0;
+  /* ensure flex children can shrink correctly */
+  box-sizing: border-box;
 }
-.pc-card:focus { box-shadow: 0 22px 60px rgba(2,12,30,0.75); transform: translateY(-6px); }
-.pc-card:hover { transform: translateY(-8px); }
 
-.pc-card--compact { width: 220px; height: 320px; }
-.pc-card--large { width: 360px; height: 520px; padding: 20px; }
+.pc-btn {
+  margin-top: auto;
+  align-self: center;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-weight: 700;
+  text-size-adjust: 70%;
+  height: 20px;
+  width: 50%;
+  padding: 0%;
+}
+
+.pc-card:focus {
+  box-shadow: 0 22px 60px rgba(2, 12, 30, 0.75);
+  transform: translateY(-6px);
+}
+
+.pc-card:hover {
+  transform: translateY(-8px);
+}
+
+.pc-card--compact {
+width: 100%;
+height: auto;
+  /*
+  width: 280px;
+  height: 400px;
+  */
+}
+
+.pc-card--large {
+  /* grande carte : s'adapte à l'espace disponible mais peut atteindre une largeur confortable */
+  width: min(920px, 92vw);
+  max-width: 920px;
+  height: auto; /* contenu dicté par le flux (description + details) */
+  padding: 22px 28px 28px 22px;
+  overflow: visible; /* permet le débordement décoratif */
+  position: relative;
+  padding-right: 84px; /* espace pour le décor qui dépasse */
+  z-index: 1;
+}
+
+/* décor débordant à droite : visible derrière la carte, met en valeur la zone des stats/description */
+.pc-card--large::after {
+  content: "";
+  position: absolute;
+  top: 10%;
+  right: -56px; /* déborde à droite de la carte */
+  width: 220px;
+  height: 72%;
+  background: linear-gradient(180deg, rgba(255,214,64,0.12), rgba(255,214,64,0.04));
+  border-radius: 16px;
+  box-shadow: 0 28px 60px rgba(2,12,30,0.22);
+  pointer-events: none;
+  z-index: -1; /* derrière le contenu de la carte */
+}
+
+/* zone de stats / détails dans la grande carte */
+.pc-card__fullDetails {
+  margin-top: 12px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.015));
+  padding: 12px;
+  border-radius: 12px;
+  box-shadow: inset 0 -6px 18px rgba(0,0,0,0.06);
+}
+
+.pc-card__fullDetails h3 {
+  margin: 0 0 8px 0;
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.pc-card__fullDetails dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 16px;
+  margin: 0;
+}
+
+.pc-card__fullDetails dt {
+  font-size: 0.72rem;
+  opacity: 0.7;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.pc-card__fullDetails dd {
+  margin: 0;
+  font-weight: 700;
+  color: rgba(255,255,255,0.95);
+}
+
+/* si l'espace est restreint, empiler la définition */
+@media (max-width:720px) {
+  .pc-card__fullDetails dl { grid-template-columns: 1fr; }
+}
+
+/* réutiliser l'apparence de la ligne de stats mais rendre la zone lisible */
+.pc-card--large .pc-statsRow {
+  background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  padding: 8px 12px;
+  border-radius: 10px;
+} 
 
 /* chrome */
-.pc-card__chrome{ display:flex; flex-direction:column; height:100%; gap:10px; }
+.pc-card__chrome {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: 10px;
+}
+
+/* layout: nom -> illustration centrée -> stats (stack vertical) */
+.pc-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: stretch;
+  width: 100%;
+  min-height: 0; /* allow children to shrink inside flex */
+}
+
+.pc-card__info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1 1 auto;
+  min-width: 0; /* critical for text truncation inside flex */
+  width: 100%;
+  height: 100%;
+}
+
+/* place types to the left of the name */
+.pc-nameRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+}
+
+.pc-card__types {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex: 0 0 auto;
+}
+
+/* smaller type pills (inline, left of name) */
+.pc-type {
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: capitalize;
+  white-space: nowrap;
+  box-shadow: inset 0 -3px 6px rgba(0,0,0,0.08);
+}
+
+/* ensure name can shrink and ellipsize if needed */
+.pc-name {
+  font-size: 1.15rem;
+  text-transform: capitalize;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+  flex: 1 1 auto;
+}
 
 /* type logo (top-left) */
-.pc-type-logo{ position:absolute; top:12px; left:12px; width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; color:rgba(0,0,0,0.7); box-shadow: inset 0 -6px 14px rgba(0,0,0,0.15); border:2px solid rgba(255,255,255,0.06); }
-.pc-type-logo__abbr{ font-size:18px; letter-spacing:0.02em; }
+.pc-type-logo {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  color: rgba(0, 0, 0, 0.7);
+  box-shadow: inset 0 -6px 14px rgba(0, 0, 0, 0.15);
+  border: 2px solid rgba(255, 255, 255, 0.06);
+}
+
+.pc-type-logo__abbr {
+  font-size: 18px;
+  letter-spacing: 0.02em;
+}
 
 /* top row: name left, PV right */
-.pc-card__toprow{ display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
-.pc-nameWrap{ display:flex; flex-direction:column; gap:4px; }
-.pc-name{ font-size:1.15rem; text-transform:capitalize; font-weight:800; letter-spacing:0.02em; }
-.pc-id{ font-size:0.75rem; opacity:0.6; font-weight:700; }
-.pc-hp{ font-size:0.9rem; font-weight:700; color:#fff; opacity:0.95; }
-.pc-hp__value{ margin-left:6px; padding:2px 8px; background: rgba(255,255,255,0.08); border-radius:12px; font-weight:900; }
+.pc-card__toprow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
 
-/* big centered artwork */
-.pc-card__art{ display:flex; align-items:center; justify-content:center; flex: 0 0 auto; height: 52%; }
-.pc-sprite{ max-width: 70%; max-height: 100%; object-fit:contain; filter: drop-shadow(0 18px 40px rgba(2,12,30,0.6)); transform: translateY(-6px); }
+.pc-nameWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pc-name {
+  font-size: 1.15rem;
+  text-transform: capitalize;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.pc-id {
+  font-size: 0.75rem;
+  opacity: 0.6;
+  font-weight: 700;
+}
+
+.pc-hp {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #fff;
+  opacity: 0.95;
+}
+
+.pc-hp__value {
+  margin-left: 6px;
+  padding: 2px 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  font-weight: 900;
+}
+
+/* artwork — centré sous le nom
+   - height: auto pour éviter que l'image ne pousse le layout
+   - padding léger pour espacer l'image du nom et des stats
+*/
+.pc-card__art {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: auto;
+  padding: 0.25rem 0;
+  min-width: 0;
+}
+
+/* variante (si ciblage spécifique nécessaire) */
+.pc-card__art--centered { justify-content: center; }
+
+.pc-sprite { 
+  max-width: 50%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 12px 28px rgba(2, 12, 30, 0.5));
+  transform: translateY(0);
+}
 
 /* dimensions + attacks */
-.pc-dim-and-attacks{ display:flex; gap:12px; align-items:flex-start; justify-content:space-between; }
-.pc-dimensions{ display:flex; gap:10px; align-items:center; color:rgba(255,255,255,0.85); font-weight:700; }
-.pc-dim{ font-size:0.88rem; opacity:0.9; }
+.pc-dim-and-attacks {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  justify-content: space-between;
+  width: 100%;
+}
 
-.pc-attacks{ display:flex; flex-direction:column; gap:6px; min-width:110px; max-width:140px; align-self:flex-start; }
-.pc-attack{ display:flex; justify-content:space-between; gap:12px; align-items:center; background: rgba(255,255,255,0.02); padding:6px 8px; border-radius:8px; font-weight:700; }
-.pc-attack__name{ text-transform:capitalize; font-size:0.88rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.pc-attack__power{ min-width:28px; text-align:right; color:var(--pc-border); font-weight:900; }
-.pc-attack--placeholder{ opacity:0.55; font-weight:600; }
+.pc-dimensions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 700;
+  flex: 0 0 auto;
+}
+
+.pc-dim {
+  font-size: 0.86rem;
+  opacity: 0.9;
+}
+
+.pc-attacks {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 86px;
+  max-width: 120px;
+  align-self: flex-start;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.pc-attack {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 6px 8px;
+  border-radius: 8px;
+  font-weight: 700;
+}
+
+/* Nom d'attaque : autoriser le retour à la ligne pour éviter le débordement
+   - Si vous préférez tronquer sur une ligne, remplacer `white-space: normal` par `white-space: nowrap`
+     et remettre `text-overflow: ellipsis` + `overflow: hidden`.
+*/
+.pc-attack__name {
+  text-transform: capitalize;
+  font-size: 0.82rem;
+  overflow-wrap: anywhere;
+  white-space: normal; /* allow wrapping so it doesn't overflow */
+  line-height: 1.1;
+}
+
+.pc-attack__power {
+  min-width: 28px;
+  text-align: right;
+  color: var(--pc-border);
+  font-weight: 900;
+}
+
+.pc-attack--placeholder {
+  opacity: 0.55;
+  font-weight: 600;
+}
 
 /* bottom right small description */
-.pc-card__bottom{ display:flex; justify-content:flex-end; align-items:flex-end; margin-top:auto; }
-.pc-desc{ margin:0; color:rgba(255,255,255,0.92); }
-.pc-desc--small{ font-size:0.72rem; opacity:0.85; text-align:right; max-width:55%; }
+.pc-card__bottom {
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+  margin-top: auto;
+}
+
+/* Police spécifique pour la description (serif pour meilleure lisibilité en bloc) */
+.pc-desc {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.92);
+  /* Police : Merriweather importée globalement (fallback serif) */
+  font-family: "Merriweather", Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  font-size: 0.86rem; /* taille lisible */
+  line-height: 1.35;
+}
+
+.pc-desc--small {
+  font-size: 0.72rem;
+  opacity: 0.85;
+  text-align: right;
+  max-width: 55%;
+}
+
+/* Police dédiée aux statistiques : Inter (sans-serif moderne) */
+.pc-stats,
+.pc-stat__label,
+.pc-stat__value {
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  font-weight: 700; /* changez en 400/600 si vous voulez moins d'impact */
+  font-size: 0.92rem;
+  letter-spacing: 0.01em;
+}
+
+/* layout de la ligne de stats qui occupe toute la largeur */
+.pc-stats { width: 100%; display: block; }
+.pc-statsRow {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+/* petit composant pour une stat (PV, ATQ, etc.) */
+.pc-stat {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex: 0 1 auto;
+}
+
+/* Puissances / chiffres (accentués) */
+.pc-attack__power {
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+  font-weight: 900;
+  color: var(--pc-border);
+}
 
 /* small responsive adjustments */
-@media (max-width:680px){
-  .pc-card{ width: 92%; height: auto; border-width:5px; }
-  .pc-card--compact{ width: 100%; }
-  .pc-card__art{ height: 44%; }
-  .pc-desc--small{ max-width:100%; }
+@media (max-width:680px) {
+  .pc-card {
+    width: 50%;
+    height: auto;
+    border-width: 5px;
+  }
+
+  .pc-card--compact {
+    width: 50%;
+  }
+
+  .pc-card__art {
+    height: 30%;
+  }
+
+  .pc-desc--small {
+    max-width: 100%;
+  }
 }
 
 /* keep existing type color helpers so logo and pills match */
-.pc-type--fire{ background: linear-gradient(180deg,#ff9a76,#ff6a3d); color:#2b0700; }
-.pc-type--water{ background: linear-gradient(180deg,#8fd3ff,#3aa0ff); color:#02283a; }
-.pc-type--grass{ background: linear-gradient(180deg,#b6f3c1,#35d07b); color:#072912; }
-.pc-type--electric{ background: linear-gradient(180deg,#fff3a0,#ffd04a); color:#2b2500; }
-.pc-type--psychic{ background: linear-gradient(180deg,#ffd5f1,#ff78d1); color:#2b0428; }
-.pc-type--rock{ background: linear-gradient(180deg,#e9e0c7,#c7b89a); color:#231a05; }
-.pc-type--ground{ background: linear-gradient(180deg,#efd7b1,#d1b07a); color:#201600; }
-.pc-type--ice{ background: linear-gradient(180deg,#e6fbff,#bfeffd); color:#022127; }
-.pc-type--fighting{ background: linear-gradient(180deg,#ffb9a8,#ff7b5a); color:#2b0f07; }
-.pc-type--poison{ background: linear-gradient(180deg,#e4c0ff,#c084ff); color:#21003a; }
-.pc-type--flying{ background: linear-gradient(180deg,#dbe7ff,#9fb7ff); color:#07103a; }
-.pc-type--bug{ background: linear-gradient(180deg,#dff8d6,#96e06b); color:#06220a; }
-.pc-type--ghost{ background: linear-gradient(180deg,#d7d7ff,#9b9bff); color:#081034; }
-.pc-type--dark{ background: linear-gradient(180deg,#cfcfcf,#8f8f8f); color:#071012; }
-.pc-type--dragon{ background: linear-gradient(180deg,#e2e8ff,#9aaeff); color:#041034; }
-.pc-type--steel{ background: linear-gradient(180deg,#e8f0ff,#cfd9e8); color:#061028; }
-.pc-type--fairy{ background: linear-gradient(180deg,#ffdff7,#ffbddf); color:#2b0527; }
-.pc-type--normal{ background: linear-gradient(180deg,#f2f2f2,#e2e2e2); color:#111111; }
+.pc-type--fire {
+  background: linear-gradient(180deg, #ff9a76, #ff6a3d);
+  color: #2b0700;
+}
+
+.pc-type--water {
+  background: linear-gradient(180deg, #8fd3ff, #3aa0ff);
+  color: #02283a;
+}
+
+.pc-type--grass {
+  background: linear-gradient(180deg, #b6f3c1, #35d07b);
+  color: #072912;
+}
+
+.pc-type--electric {
+  background: linear-gradient(180deg, #fff3a0, #ffd04a);
+  color: #2b2500;
+}
+
+.pc-type--psychic {
+  background: linear-gradient(180deg, #ffd5f1, #ff78d1);
+  color: #2b0428;
+}
+
+.pc-type--rock {
+  background: linear-gradient(180deg, #e9e0c7, #c7b89a);
+  color: #231a05;
+}
+
+.pc-type--ground {
+  background: linear-gradient(180deg, #efd7b1, #d1b07a);
+  color: #201600;
+}
+
+.pc-type--ice {
+  background: linear-gradient(180deg, #e6fbff, #bfeffd);
+  color: #022127;
+}
+
+.pc-type--fighting {
+  background: linear-gradient(180deg, #ffb9a8, #ff7b5a);
+  color: #2b0f07;
+}
+
+.pc-type--poison {
+  background: linear-gradient(180deg, #e4c0ff, #c084ff);
+  color: #21003a;
+}
+
+
+.pc-type--flying {
+  background: linear-gradient(180deg, #dbe7ff, #9fb7ff);
+  color: #07103a;
+}
+
+.pc-type--bug {
+  background: linear-gradient(180deg, #dff8d6, #96e06b);
+  color: #06220a;
+}
+
+.pc-type--ghost {
+  background: linear-gradient(180deg, #d7d7ff, #9b9bff);
+  color: #081034;
+}
+
+.pc-type--dark {
+  background: linear-gradient(180deg, #cfcfcf, #8f8f8f);
+  color: #071012;
+}
+
+.pc-type--dragon {
+  background: linear-gradient(180deg, #e2e8ff, #9aaeff);
+  color: #041034;
+}
+
+.pc-type--steel {
+  background: linear-gradient(180deg, #e8f0ff, #cfd9e8);
+  color: #061028;
+}
+
+.pc-type--fairy {
+  background: linear-gradient(180deg, #ffdff7, #ffbddf);
+  color: #2b0527;
+}
+
+.pc-type--normal {
+  background: linear-gradient(180deg, #f2f2f2, #e2e2e2);
+  color: #111111;
+}
+

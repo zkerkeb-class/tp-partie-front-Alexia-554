@@ -1,3 +1,7 @@
+/* Layout global de l'application
+   - Contient les utilitaires de mise en page pour le Pokédex (grille, modal, contrôles)
+   - Modifier : .pl-grid (template-columns) pour changer le comportement responsive de la grille
+*/
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -16,14 +20,54 @@
 .pl-search input { padding: 0.6rem 0.75rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.06); min-width: 220px; background: rgba(255,255,255,0.03); color: inherit; }
 .pl-filters { display: flex; gap: 1rem; align-items: flex-start; flex-wrap: wrap; }
 .pl-filter-group { background: rgba(255,255,255,0.02); padding: 0.5rem; border-radius: 8px; min-width: 160px; }
-.pl-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); margin-top: 1rem; }
-.pl-grid__item { display: flex; }
+.pl-grid {
+  display: grid;
+  gap: 10px; /* espacement constant : toujours 10px entre cartes */
+  /* grille fluide et fiable :
+     - min 220px (cartes peuvent se réduire un peu)
+     - max = 260px (largeur de référence des cartes)
+     - auto-fit remplit autant de colonnes de cette largeur que possible
+     - overflow visible autorise les débordements décoratifs
+  */
+  grid-template-columns: repeat(auto-fit, minmax(220px, 260px));
+  justify-content: start;
+  margin-top: 1rem;
+  overflow: visible; /* autorise le débordement visuel des cartes */
+  grid-auto-flow: row;
+  justify-content: center;    /*allignement des cartes dans la grille , à supprimer pour coller à droite*/
+  
+
+}
+
+.pl-grid__item {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  overflow: visible; /* nécessaire pour que .pc-card--large puisse déborder */
+  width: auto; /* éviter que l'item force une largeur de 100% */
+}
 
 .pl-loading { padding: 6rem 0; font-size: 1.1rem; }
 
 /* Modal */
 .pl-modal { position: fixed; inset: 0; display: grid; place-items: center; background: rgba(2,6,23,0.6); z-index: 60; padding: 2rem; }
-.pl-modal__panel { background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border-radius: 14px; padding: 1rem; max-width: 960px; width: 100%; display: grid; grid-template-columns: 1fr 320px; gap: 1rem; align-items: start; }
+.pl-modal__panel {
+  /* fond rouge prononcé qui englobe les deux moitiés */
+  background: linear-gradient(180deg, rgba(228, 226, 226, 0.96), rgba(122, 122, 122, 0.98));
+  color: #fff; /* garantir contraste */
+  border-radius: 16px;
+  padding: 1.25rem;
+  max-width: 960px;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 10px;
+  align-items: start;
+  box-shadow: 0 40px 100px rgba(160,20,30,0.35), inset 0 1px 0 rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,120,120,0.08);
+  overflow: visible; /* laisser le décor dépasser */
+}
+
 .pl-modal__close { position: absolute; right: 2.2rem; top: 2.2rem; background: transparent; border: none; color: inherit; font-size: 1.25rem; }
 .pl-modal__details { padding: 0.5rem 1rem; }
 
