@@ -5,12 +5,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import PokeCard from '../pokeCard';
 import './pokelist.css';
+import api from '../../services/api';
 
 // Valeur par défaut du nombre de Pokémon chargés (utile pour le développement)
 const DEFAULT_LIMIT = 80;
 
-// Petit helper pour fetch + JSON — centralise les appels réseau
-const fetchJson = (url) => fetch(url).then((r) => r.json());
+// Utiliser le service API centralisé
 
 // Composant principal de la liste
 const PokeList = () => {
@@ -46,43 +46,26 @@ const PokeList = () => {
     async function load() {
       setLoading(true);
       try {
-        // on demande la liste (limit configurable)
-        const list = await fetchJson(`https://pokeapi.co/api/v2/pokemon?limit=${Math.max(limit, 20)}`);
+        // Récupérer la liste depuis notre API backend
+        const res = await api.get('/pokemons', { params: { limit: Math.max(limit, 20) } });
+        const list = res.data.pokemons || [];
 
-        // récupérer les détails en parallèle (chaque item contient une URL)
-        const detailPromises = list.results.map((p) => fetchJson(p.url).catch(() => null));
-        const details = await Promise.all(detailPromises);
-
-        // species contient les flavor_text (descriptions) — on les récupère en parallèle
-        const speciesPromises = details.map((d) => (d && d.species ? fetchJson(d.species.url).catch(() => null) : null));
-        const species = await Promise.all(speciesPromises);
-
-        // Normalisation : on extrait uniquement les champs utiles à l'affichage
-        const normalized = details
-          .filter(Boolean)
-          .map((d, idx) => {
-            const sp = species[idx] || {};
-            // préférence pour la description FR, fallback EN
-            const flavor = (sp.flavor_text_entries || []).find((f) => f.language?.name === 'fr')
-              || (sp.flavor_text_entries || []).find((f) => f.language?.name === 'en')
-              || null;
-
-            return {
-              id: d.id,
-              name: d.name,
-              types: d.types.map((t) => t.type.name),
-              hp: d.stats.find((s) => s.stat.name === 'hp')?.base_stat,
-              attack: d.stats.find((s) => s.stat.name === 'attack')?.base_stat,
-              // sprite principal (official-artwork) puis fallback
-              sprite: d.sprites?.other?.['official-artwork']?.front_default || d.sprites?.front_default || null,
-              weight: d.weight,
-              height: d.height,
-              abilities: d.abilities.map((a) => a.ability.name),
-              // nettoyer sauts de ligne / form-feed
-              description: flavor ? flavor.flavor_text.replace(/\n|\f/g, ' ') : null,
-              raw: d, // garder l'objet brut si besoin de debug
-            };
-          });
+        // Normalisation : adapter la forme du backend à ce que la UI attend
+        const normalized = list.map((p) => {
+          return {
+            id: p.id,
+            name: (p.name && (p.name.french || p.name.english)) || p.name?.english || `#${p.id}`,
+            types: p.type || p.types || [],
+            hp: p.base?.HP ?? null,
+            attack: p.base?.Attack ?? null,
+            sprite: p.image || null,
+            weight: p.weight ?? 0,
+            height: p.height ?? 0,
+            abilities: p.abilities || [],
+            description: p.description || null,
+            raw: p,
+          };
+        });
 
         if (!cancelled) {
           setAll(normalized);
