@@ -4,11 +4,12 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import PokeCard from '../pokeCard';
+import PokeCrud from '../pokeCrud';
 import './pokelist.css';
 import api from '../../services/api';
 
-// Valeur par défaut du nombre de Pokémon chargés (utile pour le développement)
-const DEFAULT_LIMIT = 80;
+// Nombre de Pokémons par page (pagination)
+const ITEMS_PER_PAGE = 20;
 
 // Utiliser le service API centralisé
 
@@ -18,11 +19,17 @@ const PokeList = () => {
      Etats principaux
      - all : tableau d'objets pokémon normalisés
      - loading : drapeau de chargement
-     - limit : combien de Pokémon charger (paginable)
+     - currentPage : page actuelle (pagination)
+     - totalPages : nombre total de pages
+     - totalCount : nombre total de pokémons
   ---------------------------------------- */
   const [all, setAll] = useState([]); // objets détaillés normalisés
   const [loading, setLoading] = useState(true);
-  const [limit, setLimit] = useState(DEFAULT_LIMIT);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const [showCrudModal, setShowCrudModal] = useState(false);
+  const [editingPokemon, setEditingPokemon] = useState(null);
 
   /* ---------------------------------------
      Etats UI (contrôles de filtrage)
@@ -35,23 +42,29 @@ const PokeList = () => {
   const [selected, setSelected] = useState(null); // pokémon sélectionné pour modal
 
   /* ---------------------------------------
-     Effet : chargement des données depuis PokeAPI
-     - Récupère la liste puis les détails (et species pour la description)
+     Effet : chargement des données depuis l'API backend avec pagination
+     - Récupère une page de 20 pokémons à la fois
      - Normalise les champs utiles pour l'app
-     - Garde la logique résistante aux erreurs (catch)
-     - cancelled permet d'éviter de setState après un unmount
+     - Permet la pagination via currentPage
   ---------------------------------------- */
   useEffect(() => {
     let cancelled = false;
     async function load() {
       setLoading(true);
       try {
-        // Récupérer la liste depuis notre API backend
-        const res = await api.get('/pokemons', { params: { limit: Math.max(limit, 20) } });
-        const list = res.data.pokemons || [];
+        // Récupérer une page depuis notre API backend
+        const res = await api.get('/pokemons', { 
+          params: { 
+            page: currentPage,
+            limit: ITEMS_PER_PAGE 
+          } 
+        });
+
+        // Récupérer les métadonnées de pagination
+        const { pokemons, pagination } = res.data;
 
         // Normalisation : adapter la forme du backend à ce que la UI attend
-        const normalized = list.map((p) => {
+        const normalized = pokemons.map((p) => {
           return {
             id: p.id,
             name: (p.name && (p.name.french || p.name.english)) || p.name?.english || `#${p.id}`,
@@ -69,6 +82,8 @@ const PokeList = () => {
 
         if (!cancelled) {
           setAll(normalized);
+          setTotalPages(pagination.totalPages);
+          setTotalCount(pagination.totalPokemons);
         }
       } catch (err) {
         // erreur réseau ou parsing — log pour debug mais ne crash pas l'app
@@ -80,7 +95,7 @@ const PokeList = () => {
 
     load();
     return () => { cancelled = true; };
-  }, [limit]); // re-run si on change le `limit`
+  }, [currentPage]); // re-run si on change la page
 
   /* ---------------------------------------
      Calculer les bornes (min/max) utilisables pour les sliders
@@ -160,8 +175,19 @@ const PokeList = () => {
   ---------------------------------------- */
   return (
     <section className="pl-root">
-      {/* Titre */}
-      <h2 className="pl-title">Pokédex</h2>
+      {/* Titre + bouton créer */}
+      <div className="pl-header">
+        <h2 className="pl-title">Pokédex</h2>
+        <button 
+          className="pl-create-btn"
+          onClick={() => {
+            setEditingPokemon(null);
+            setShowCrudModal(true);
+          }}
+        >
+          + Créer Pokémon
+        </button>
+      </div>
 
       {/* Controles : recherche + filtres */}
       <div className="pl-controls">
@@ -302,13 +328,57 @@ const PokeList = () => {
         </div>
       </div>
 
-      {/* Meta : nombre de résultats + bouton charger plus */}
+      {/* Meta : information de pagination + boutons */}
       <div className="pl-meta">
-        <div>{filtered.length} résultat{filtered.length > 1 ? 's' : ''}</div>
-        {all.length > limit && (
-          // augmente `limit` sans dépasser la longueur totale
-          <button onClick={() => setLimit((l) => Math.min(l + DEFAULT_LIMIT, all.length))}>Charger plus</button>
-        )}
+        <div>
+          {totalCount > 0 ? (
+            <>
+              Page {currentPage} / {totalPages} 
+              <span className="pl-meta__count">({totalCount} Pokémons au total)</span>
+            </>
+          ) : (
+            <span>Chargement...</span>
+          )}
+        </div>
+        
+        {/* Boutons de pagination */}
+        <div className="pl-pagination">
+          <button 
+            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+            disabled={currentPage === 1 || loading}
+            aria-label="Page précédente"
+          >
+            ← Précédente
+          </button>
+          
+          {/* Afficher les numéros de page proches (ex: 1 2 3* 4 5) */}
+          <div className="pl-pagination__numbers">
+            {Array.from({ length: totalPages }, (_, i) => i + 1)
+              .filter(p => Math.abs(p - currentPage) <= 2 || p === 1 || p === totalPages)
+              .map((p, idx, arr) => (
+                <React.Fragment key={p}>
+                  {idx > 0 && arr[idx - 1] !== p - 1 && <span className="pl-pagination__dots">…</span>}
+                  <button
+                    className={`pl-pagination__btn ${p === currentPage ? 'pl-pagination__btn--active' : ''}`}
+                    onClick={() => setCurrentPage(p)}
+                    disabled={loading}
+                    aria-label={`Go to page ${p}`}
+                    aria-current={p === currentPage ? 'page' : undefined}
+                  >
+                    {p}
+                  </button>
+                </React.Fragment>
+              ))}
+          </div>
+
+          <button 
+            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages || loading}
+            aria-label="Page suivante"
+          >
+            Suivante →
+          </button>
+        </div>
       </div>
 
       {/* Grille des cartes */}
@@ -325,7 +395,32 @@ const PokeList = () => {
       {selected && (
         <div className="pl-modal" role="dialog" aria-modal="true" aria-label={`Fiche ${selected.name}`} onClick={() => setSelected(null)}>
           <div className={`pl-modal__panel ${'type-' + (selected.types?.[0] || 'normal')}`} onClick={(e) => e.stopPropagation()}>
-            <button className="pl-modal__close" onClick={() => setSelected(null)} aria-label="Fermer">✕</button>
+            <div className="pl-modal__header">
+              <button className="pl-modal__close" onClick={() => setSelected(null)} aria-label="Fermer">✕</button>
+              <div className="pl-modal__actions">
+                <button 
+                  className="pl-modal__btn pl-modal__btn--edit"
+                  onClick={() => {
+                    setEditingPokemon(selected);
+                    setShowCrudModal(true);
+                  }}
+                >
+                  ✏️ Modifier
+                </button>
+                <button 
+                  className="pl-modal__btn pl-modal__btn--delete"
+                  onClick={() => {
+                    setEditingPokemon(selected);
+                    setShowCrudModal(true);
+                  }}
+                >
+                  🗑️ Supprimer
+                </button>
+              </div>
+            </div>
+
+            {/* Wrapper pour left et details côte à côte */}
+            <div className="pl-modal__content">
 
             {/* --- GAUCHE : encadré coloré (type) contenant type / nom / image --- */}
             <div className="pl-modal__left">
@@ -381,8 +476,25 @@ const PokeList = () => {
                 <p className="pl-modal__summary">{selected.description}</p>
               </div>
             </aside>
+            </div>
+            {/* Fin du wrapper pl-modal__content */}
           </div>
         </div>
+      )}
+
+      {/* Modal CRUD (créer/modifier/supprimer) */}
+      {showCrudModal && (
+        <PokeCrud 
+          pokemon={editingPokemon}
+          onClose={() => {
+            setShowCrudModal(false);
+            setEditingPokemon(null);
+          }}
+          onSuccess={() => {
+            // Recharger la page actuelle après une modification
+            setCurrentPage(1);
+          }}
+        />
       )}
     </section>
   );

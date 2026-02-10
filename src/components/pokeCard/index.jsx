@@ -9,6 +9,7 @@
 
 import React from "react";
 import './pokeCard.css';
+import { getTypeImagePath } from '../../utils/typeImageMapping';
 
 // Presentational card — expects a `pokemon` object already containing the fields used below.
 // pokemon: { id, name, types: [string], hp, attack, sprite, weight, height, description, abilities }
@@ -36,12 +37,25 @@ const PokeCard = ({ pokemon, onClick, large = false }) => {
           <div className="pc-nameRow">
             <div className="pc-card__types">
               {pokemon.types.map((t) => (
-                <span key={t} className={`pc-type pc-type--${t}`}>{t}</span>
+                <span key={t} className={`pc-type pc-type--${t}`}>
+                  <img 
+                    src={getTypeImagePath(t)} 
+                    alt={t} 
+                    className="pc-type__image"
+                    loading="lazy"
+                  />
+                  {t}
+                </span>
               ))}
             </div>
-            <h3 className="pc-name">{pokemon.name}</h3>
+            
             <div className="pc-card__id">#{String(pokemon.id).padStart(3, '0')}</div>
+            
           </div>
+          <div className="pc-nameRow">
+            <h3 className="pc-name">{pokemon.name}</h3>
+          </div>
+
 
           {/* illustration centrée SOUS le nom */}
           <div className="pc-card__art pc-card__art--centered">

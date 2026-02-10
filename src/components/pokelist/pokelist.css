@@ -2,6 +2,37 @@
    - `.pl-search input` : largeur et comportement responsive du champ de recherche
    - `.pl-types` / `.pl-type-pill` : appearance des "pills" de types (changer background/color pour personnaliser)
 */
+
+.pl-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.pl-create-btn {
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #ffd400, #ffea78);
+  color: #0a0a0a;
+  border: none;
+  border-radius: 6px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.95rem;
+}
+
+.pl-create-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(255, 212, 0, 0.3);
+}
+
+.pl-create-btn:active {
+  transform: translateY(0);
+}
+
 .pl-search input {
     width: 100%;
     max-width: 380px;
@@ -148,6 +179,71 @@
     min-width: 200px;
 }
 
+/* Header de la modal avec les boutons */
+.pl-modal__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.5rem 0;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Structure du panel : header en haut, puis gauche + droite côte à côte */
+.pl-modal__panel {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* Wrapper pour mettre left et details côte à côte */
+.pl-modal__content {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+}
+
+.pl-modal__actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.pl-modal__btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.pl-modal__btn--edit {
+    background: linear-gradient(135deg, #4caf50, #66bb6a);
+    color: #fff;
+}
+
+.pl-modal__btn--edit:hover {
+    background: linear-gradient(135deg, #45a049, #5cb85c);
+    transform: translateY(-2px);
+}
+
+.pl-modal__btn--delete {
+    background: rgba(255, 87, 87, 0.2);
+    color: #ff5757;
+    border: 1px solid rgba(255, 87, 87, 0.3);
+}
+
+.pl-modal__btn--delete:hover {
+    background: rgba(255, 87, 87, 0.3);
+    border-color: rgba(255, 87, 87, 0.5);
+    transform: translateY(-2px);
+}
+
 .pl-modal__close {
     background: rgba(255, 255, 255, 0.02);
     border-radius: 999px;
@@ -235,6 +331,7 @@
 .pl-modal__details {
     display: flex;
     flex-direction: column;
+    width: 500px;
     gap: 12px;
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
     border-radius: 12px;
@@ -244,6 +341,7 @@
     max-height: 76vh;
     overflow: auto;
     box-shadow: 0 18px 40px rgba(2, 12, 30, 0.14);
+    flex: 1; /* Prend tout l'espace disponible à côté de left */
 }
 
 .pl-statsList {
@@ -488,3 +586,100 @@
     }
 }
     */
+
+/* ========================================
+   PAGINATION
+   ======================================== */
+
+.pl-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+    margin: 1.5rem 0;
+    flex-wrap: wrap;
+}
+
+.pl-meta__count {
+    opacity: 0.7;
+    font-size: 0.9rem;
+    margin-left: 0.5rem;
+}
+
+.pl-pagination {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.pl-pagination button {
+    padding: 0.5rem 1rem;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 6px;
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.pl-pagination button:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+}
+
+.pl-pagination button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.pl-pagination__numbers {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.pl-pagination__dots {
+    padding: 0 0.25rem;
+    opacity: 0.5;
+}
+
+.pl-pagination__btn {
+    min-width: 36px;
+    padding: 0.35rem 0.5rem;
+    font-size: 0.9rem;
+}
+
+.pl-pagination__btn--active {
+    background: linear-gradient(135deg, #ffd400, #ffea78);
+    border-color: #ffd400;
+    color: #0a0a0a;
+    font-weight: 700;
+}
+
+@media (max-width: 640px) {
+    .pl-meta {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .pl-pagination {
+        justify-content: center;
+    }
+
+    .pl-pagination button {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+    }
+
+    .pl-pagination__btn {
+        min-width: 32px;
+        padding: 0.3rem 0.4rem;
+        font-size: 0.8rem;
+    }
+}
