@@ -220,7 +220,13 @@ const PokeList = () => {
             ref={searchInputRef}
             placeholder="Rechercher un Pokémon par nom…"
             value={query}
-            onChange={(e) => { setCurrentPage(1); setQuery(e.target.value); }}
+              onChange={(e) => {
+                setCurrentPage(1);
+                setQuery(e.target.value);
+                if (searchInputRef.current) {
+                  searchInputRef.current.focus();
+                }
+              }}
             aria-label="Rechercher un Pokémon par nom"
           />
         </div>
