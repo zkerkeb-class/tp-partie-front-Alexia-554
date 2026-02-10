@@ -14,11 +14,12 @@
   margin: 0 auto;
   max-width: 1200px;
   color: var(--text, inherit);
+  background-color: rgb(156, 129, 91);
 }
 .pl-title { margin: 0 0 1rem 0; }
 .pl-controls { display: flex; gap: 1rem; align-items: flex-start; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; }
 .pl-search input { padding: 0.6rem 0.75rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.06); min-width: 220px; background: rgba(255,255,255,0.03); color: inherit; }
-.pl-filters { display: flex; gap: 1rem; align-items: flex-start; flex-wrap: wrap; }
+.pl-filters { display: flex; gap: 1rem; align-items: flex-start; flex-wrap: wrap; background-color: rgb(135, 117, 91); border-radius: 8px;}
 .pl-filter-group { background: rgba(255,255,255,0.02); padding: 0.5rem; border-radius: 8px; min-width: 160px; }
 .pl-grid {
   display: grid;
