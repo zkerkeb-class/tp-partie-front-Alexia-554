@@ -2,7 +2,7 @@
 // Description : affiche une liste filtrable de Pokémon (récupérés depuis l'API publique PokeAPI)
 // Objectif du fichier : permettre la recherche, le filtrage par type/valeurs et ouvrir une fiche détaillée.
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 import PokeCard from '../pokeCard';
 import PokeCrud from '../pokeCrud';
 import './pokelist.css';
@@ -41,6 +41,9 @@ const PokeList = () => {
   const [attackRange, setAttackRange] = useState([0, 200]); // plage attaque
   const [selected, setSelected] = useState(null); // pokémon sélectionné pour modal
 
+  /* Ref pour l'auto-focus de la recherche */
+  const searchInputRef = useRef(null);
+
   /* ---------------------------------------
      Effet : chargement des données depuis l'API backend avec pagination
      - Récupère une page de 20 pokémons à la fois
@@ -52,19 +55,23 @@ const PokeList = () => {
     async function load() {
       setLoading(true);
       try {
+        // Construire les params pour la requête (support recherche globale et filtre type)
+        const params = {
+          page: currentPage,
+          limit: ITEMS_PER_PAGE,
+        };
+
+        if (query && String(query).trim().length) params.search = query.trim();
+        if (typeFilter && typeFilter.length) params.type = typeFilter.join(',');
+
         // Récupérer une page depuis notre API backend
-        const res = await api.get('/pokemons', { 
-          params: { 
-            page: currentPage,
-            limit: ITEMS_PER_PAGE 
-          } 
-        });
+        const res = await api.get('/pokemons', { params });
 
         // Récupérer les métadonnées de pagination
         const { pokemons, pagination } = res.data;
 
         // Normalisation : adapter la forme du backend à ce que la UI attend
-        const normalized = pokemons.map((p) => {
+        const normalized = (pokemons || []).map((p) => {
           return {
             id: p.id,
             name: (p.name && (p.name.french || p.name.english)) || p.name?.english || `#${p.id}`,
@@ -82,8 +89,8 @@ const PokeList = () => {
 
         if (!cancelled) {
           setAll(normalized);
-          setTotalPages(pagination.totalPages);
-          setTotalCount(pagination.totalPokemons);
+          setTotalPages(pagination?.totalPages ?? 1);
+          setTotalCount(pagination?.totalPokemons ?? (normalized.length || 0));
         }
       } catch (err) {
         // erreur réseau ou parsing — log pour debug mais ne crash pas l'app
@@ -95,7 +102,14 @@ const PokeList = () => {
 
     load();
     return () => { cancelled = true; };
-  }, [currentPage]); // re-run si on change la page
+  }, [currentPage, query, typeFilter]); // re-run si la page, la recherche ou les types changent
+
+  /* Auto-focus search input on component mount */
+  useEffect(() => {
+    if (searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, []);
 
   /* ---------------------------------------
      Calculer les bornes (min/max) utilisables pour les sliders
@@ -122,11 +136,20 @@ const PokeList = () => {
   }, [bounds?.hp?.[0]]); // déclenche une seule fois quand bounds est défini
 
   // Extraire la liste des types présents (unique + triée)
-  const types = useMemo(() => {
-    const s = new Set();
-    all.forEach((p) => p.types.forEach((t) => s.add(t)));
-    return [...s].sort();
-  }, [all]);
+  const [allTypes, setAllTypes] = useState([]);
+  useEffect(() => {
+    let cancelled = false;
+    async function loadTypes() {
+      try {
+        const res = await api.get('/pokemons/types/all');
+        if (!cancelled) setAllTypes(res.data.types || []);
+      } catch (e) {
+        console.error('Erreur fetching types', e);
+      }
+    }
+    loadTypes();
+    return () => { cancelled = true; };
+  }, []);
 
   /* ---------------------------------------
      Filtrage principal
@@ -194,9 +217,10 @@ const PokeList = () => {
         {/* Recherche par nom */}
         <div className="pl-search">
           <input
+            ref={searchInputRef}
             placeholder="Rechercher un Pokémon par nom…"
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => { setCurrentPage(1); setQuery(e.target.value); }}
             aria-label="Rechercher un Pokémon par nom"
           />
         </div>
@@ -207,13 +231,13 @@ const PokeList = () => {
           <div className="pl-filter-group">
             <label>Types</label>
             <div className="pl-types">
-              {types.map((t) => (
+              {allTypes.map((t) => (
                 <label key={t} className="pl-typeLabel">
                   {/* case à cocher : ajoute/retire le type du filtre */}
                   <input
                     type="checkbox"
                     checked={typeFilter.includes(t)}
-                    onChange={(e) => setTypeFilter((cur) => e.target.checked ? [...cur, t] : cur.filter(x => x !== t))}
+                    onChange={(e) => { setCurrentPage(1); setTypeFilter((cur) => e.target.checked ? [...cur, t] : cur.filter(x => x !== t)); }}
                   />
                   {/* pill visuelle — la classe CSS correspond au type */}
                   <span className={`pl-type-pill type-${t}`}>{t}</span>

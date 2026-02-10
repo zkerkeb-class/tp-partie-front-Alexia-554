@@ -41,7 +41,8 @@ export const getTypeImageId = (typeName) => {
  */
 export const getTypeImagePath = (typeName) => {
   const typeId = getTypeImageId(typeName);
-  return `/assets/types/${typeId}.png`;
+  const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+  return `${API_BASE}/assets/types/${typeId}.png`;
 };
 
 /**
@@ -50,5 +51,6 @@ export const getTypeImagePath = (typeName) => {
  * @returns {string} Chemin de l'image (ex: "/assets/pokemons/25.png")
  */
 export const getPokemonImagePath = (pokemonId) => {
-  return `/assets/pokemons/${pokemonId}.png`;
+  const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+  return `${API_BASE}/assets/pokemons/${pokemonId}.png`;
 };
