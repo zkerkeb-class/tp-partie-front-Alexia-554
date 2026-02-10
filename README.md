@@ -19,3 +19,6 @@ If you are developing a production application, we recommend using TypeScript wi
 ## BONUS
 Système de filtre sur le poids, les attaques, et le type
 Pour les captures d'écran voir le pdf dans le dossier.
+
+## VIDEO
+https://youtu.be/rkamrQXxAJI
