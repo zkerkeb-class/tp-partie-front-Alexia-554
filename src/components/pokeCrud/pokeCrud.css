@@ -1,0 +1,230 @@
+/* Style du formulaire CRUD pour Pokémons */
+
+.pc-crud {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.pc-crud__modal {
+  background: linear-gradient(135deg, #1a1a2e, #16213e);
+  border-radius: 12px;
+  padding: 2rem;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  position: relative;
+}
+
+.pc-crud__close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.pc-crud__close:hover {
+  color: #ffd400;
+}
+
+.pc-crud__title {
+  margin: 0 0 1.5rem 0;
+  font-size: 1.5rem;
+  color: #fff;
+}
+
+.pc-crud__form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.pc-crud__group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.pc-crud__label {
+  font-weight: 600;
+  color: #fff;
+  font-size: 0.95rem;
+}
+
+.pc-crud__input,
+.pc-crud__textarea,
+.pc-crud__select {
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  color: #fff;
+  font-size: 0.95rem;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+
+.pc-crud__input:focus,
+.pc-crud__textarea:focus,
+.pc-crud__select:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.08);
+  border-color: #ffd400;
+  box-shadow: 0 0 0 3px rgba(255, 212, 0, 0.1);
+}
+
+.pc-crud__textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.pc-crud__group-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 640px) {
+  .pc-crud__group-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.pc-crud__stat-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+@media (max-width: 640px) {
+  .pc-crud__stat-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.pc-crud__buttons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.pc-crud__btn {
+  flex: 1;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pc-crud__btn--primary {
+  background: linear-gradient(135deg, #ffd400, #ffea78);
+  color: #0a0a0a;
+}
+
+.pc-crud__btn--primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(255, 212, 0, 0.3);
+}
+
+.pc-crud__btn--danger {
+  background: rgba(255, 87, 87, 0.2);
+  color: #ff5757;
+  border: 1px solid rgba(255, 87, 87, 0.3);
+}
+
+.pc-crud__btn--danger:hover {
+  background: rgba(255, 87, 87, 0.3);
+  border-color: rgba(255, 87, 87, 0.5);
+}
+
+.pc-crud__btn--cancel {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.pc-crud__btn--cancel:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.pc-crud__btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pc-crud__message {
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.pc-crud__message--success {
+  background: rgba(76, 175, 80, 0.2);
+  color: #4caf50;
+  border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.pc-crud__message--error {
+  background: rgba(255, 87, 87, 0.2);
+  color: #ff5757;
+  border: 1px solid rgba(255, 87, 87, 0.3);
+}
+
+.pc-crud__type-select {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.pc-crud__type-btn {
+  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+  text-transform: capitalize;
+}
+
+.pc-crud__type-btn:hover {
+  border-color: #ffd400;
+  background: rgba(255, 212, 0, 0.1);
+}
+
+.pc-crud__type-btn--selected {
+  background: linear-gradient(135deg, #ffd400, #ffea78);
+  color: #0a0a0a;
+  border-color: #ffd400;
+}

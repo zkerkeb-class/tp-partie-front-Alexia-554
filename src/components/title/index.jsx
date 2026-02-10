@@ -1,6 +1,12 @@
+// Composant simple : Title
+// Props :
+//  - label (string) : texte du titre principal (par défaut 'Met un titre')
+// Utilisation : utile pour tester l'UI ou afficher des titres réutilisables.
+
 import './index.css';
 
 const Title = ({label = 'Met un titre'}) => {
+    // console.log présent pour debug local — peut être retiré
     console.log(label)
     return (
         <div>
@@ -9,6 +15,5 @@ const Title = ({label = 'Met un titre'}) => {
         </div>
     );
 }
-
 
 export default Title; 

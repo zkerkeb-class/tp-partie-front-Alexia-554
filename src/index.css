@@ -1,7 +1,14 @@
+/*
+  Styles globaux (reset léger + thèmes)
+  - Modifier ici la police, couleurs globales et comportements par défaut.
+  - Pour changer le thème clair/sombre, utiliser la media query `prefers-color-scheme` plus bas.
+*/
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Merriweather:ital,wght@0,400;0,700;1,400&display=swap');
+
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
-  font-weight: 400;
+  font-weight: auto;
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
