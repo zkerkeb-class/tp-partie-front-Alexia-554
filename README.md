@@ -22,3 +22,5 @@ Pour les captures d'écran voir le pdf dans le dossier.
 
 ## VIDEO
 https://youtu.be/rkamrQXxAJI
+
+## voir document pdf pour le design
