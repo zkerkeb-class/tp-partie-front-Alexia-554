@@ -1,3 +1,9 @@
+// Composant racine App
+// Description : assemble les composants visibles (Counter, PokeList, etc.)
+// Où modifier :
+//  - Ajouter/supprimer des composants ici pour changer la page principale.
+//  - Le layout/global styles sont dans `src/App.css`.
+
 import './App.css'
 
 import Title from './components/title'
@@ -7,12 +13,9 @@ function App() {
 
   return (
     <div>
-      {/* <Title  label="Titre 1" />
-      <Title label="Titre 2" />
-      <Title label="Titre 3" />
-      <Title label="Titre 4" />
-      <Title/> */}
-      <Counter/>
+      {/* Exemples d'utilisation de <Title /> (décommenter pour tester) 
+      <Counter/>*/
+      }
       <PokeList/>
     </div>
   )
